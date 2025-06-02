@@ -28,8 +28,8 @@
       padding-top: 64px;
     }
     .container {
-      max-width: 1800px;
-      width: 95vw;
+      max-width: 2100px; /* was 1800px */
+      width: 99vw;       /* was 95vw */
       margin: 32px auto 0 auto;
       padding: 32px 32px 32px 32px;
       background: rgba(24, 31, 54, 0.98);
@@ -70,7 +70,7 @@
       background: #232e4d;
       box-shadow: 0 2px 12px #3ec6ff33;
       width: 100%;
-      max-width: 700px;
+      max-width: 1000px;
       margin-left: 0;
       margin-right: 0;
     }
@@ -84,8 +84,8 @@
       font-size: 0.95em;
     }
     table td img {
-      width: 38px;
-      height: 26px;
+      width: 54px;
+      height: 38px;
       object-fit: contain;
       border-radius: 5px;
       border: 1.5px solid #3ec6ff;
@@ -233,9 +233,9 @@
     .stats-and-display {
       display: flex;
       flex-direction: row;
-      gap: 48px;
+      gap: 32px; /* was 48px, reduce gap */
       align-items: flex-start;
-      justify-content: flex-start;
+      justify-content: stretch; /* was flex-start */
       margin-top: 36px;
       width: 100%;
     }
@@ -245,9 +245,9 @@
       flex: 0 0 340px;
     }
     .slot-management-panel {
-      flex: 1 1 0;
-      min-width: 400px;
-      max-width: 700px;
+      flex: 2 1 0; /* was flex: 1 1 0; */
+      min-width: 700px; /* was 600px */
+      max-width: 1200px; /* was 950px */
       display: flex;
       flex-direction: column;
       gap: 18px;
@@ -259,44 +259,61 @@
       align-items: center;
       margin-bottom: 10px;
     }
-    .add-slot-grid input,
-    .add-slot-grid label,
-    .add-slot-grid button {
-      margin: 0;
+    .add-slot-grid input[type="text"],
+    .add-slot-grid input[type="url"],
+    .add-slot-grid input[type="number"] {
+      width: 340px;
+      font-size: 1.22em;
+      padding: 0 16px;
+      border-radius: 10px;
+      height: 48px;
+      max-width: 100%;
+      box-sizing: border-box;
     }
-    .slideshow {
-      margin-bottom: 10px;
+    #slotName {
+      width: 420px;
     }
-    #obsModeBtn {
+    #slotBet,
+    #slotImage {
+      width: 340px;
+    }
+    .pill-btn {
       background: linear-gradient(90deg, #3ec6ff 0%, #5ce1e6 100%);
       color: #181f36;
       font-weight: bold;
       border: none;
       border-radius: 999px;
-      padding: 7px 22px;
-      font-size: 1em;
+      padding: 0 22px;
+      height: 48px;
+      font-size: 1.08em;
       box-shadow: 0 2px 8px #3ec6ff55;
-      letter-spacing: 1px;
-      transition: background 0.2s, color 0.2s, box-shadow 0.2s;
-      min-width: unset;
-      min-height: unset;
-      width: auto;
-      height: auto;
+      cursor: pointer;
+      margin-left: 8px;
+      transition: background 0.2s, color 0.2s;
+      white-space: nowrap;
     }
-    #obsModeBtn:hover {
+    .pill-btn:hover {
       background: linear-gradient(90deg, #5ce1e6 0%, #3ec6ff 100%);
       color: #fff;
-      box-shadow: 0 4px 16px #3ec6ff77;
     }
-    #slotDisplay {
-      display: none !important;
+    #slotImage {
+      height: 48px;
+      font-size: 1.18em;
+      padding: 0 16px;
+      border-radius: 10px;
+      width: 260px;
+      max-width: 100%;
+      box-sizing: border-box;
+      margin-left: 8px;
+      display: none;
+      transition: display 0.2s;
     }
     /* Sidebar styles */
     .sidebar {
       position: fixed;
       top: 32px;
       right: 32px;
-      width: 340px;
+      width: 340px; /* was 340px */
       height: 1230px;
       background: var(--sidebar-bg);
       box-shadow: 0 8px 32px 8px #3ec6ffaa, 0 2px 32px 0 #000a;
@@ -820,6 +837,104 @@
   background: linear-gradient(90deg, #5ce1e6 0%, #3ec6ff 100%);
   color: #fff;
 }
+.add-slot-grid input[type="text"],
+.add-slot-grid input[type="url"],
+.add-slot-grid input[type="number"] {
+  width: 340px;
+  font-size: 1.22em;
+  padding: 0 16px;
+  border-radius: 10px;
+  height: 48px;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+#slotName {
+  width: 420px;
+}
+
+#slotImage,
+#slotBet {
+  width: 340px;
+}
+
+#slotSuggestions {
+  position: relative;
+  width: 320px;
+  z-index: 1001;
+}
+
+#slotSuggestions > div {
+  position: absolute;
+  top: 52px; /* slightly below the input */
+  left: 0;
+  width: 100%;
+  background: #232e4d;
+  border: 1.5px solid #3ec6ff;
+  border-radius: 10px;
+  box-shadow: 0 2px 12px #3ec6ff33;
+  max-height: 240px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0;
+}
+
+#slotSuggestions > div > div {
+  min-height: 48px;
+  font-size: 1.08em;
+  padding: 8px 12px 8px 56px;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #3ec6ff22;
+  position: relative;
+  cursor: pointer;
+  background: none;
+  transition: background 0.15s;
+}
+
+#slotSuggestions > div > div:last-child {
+  border-bottom: none;
+}
+
+#slotSuggestions > div > div:hover {
+  background: #2a3a5a;
+}
+
+#slotSuggestions img {
+  position: absolute;
+  left: 2px;
+  top: 10%;
+  transform: translateY(-50%);
+  width: 76px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 7px;
+  border: 1.5px solid #3ec6ff;
+  background: #181f36;
+  box-shadow: 0 1px 4px #3ec6ff33;
+}
+.slot-row {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+
+.slot-row input[type="text"],
+.slot-row input[type="number"] {
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 100%;
+}
+.add-slot-actions {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  margin-bottom: 4px;
+}
+.add-slot-actions .pill-btn {
+  flex: 1 1 0;
+  min-width: 0;
+}
   </style>
 </head>
 <body>
@@ -838,14 +953,19 @@
       <div class="slot-management-panel">
         <h3>Add Slot</h3>
         <div class="add-slot-grid">
-          <input type="text" id="slotName" placeholder="Slot Name" autocomplete="off" />
+          <div class="slot-row">
+            <input type="text" id="slotName" placeholder="Slot Name" autocomplete="off" />
+            <input type="number" id="slotBet" placeholder="Bet Amount" />
+          </div>
           <div id="slotSuggestions" style="position:relative;"></div>
-          <input type="url" id="slotImage" placeholder="Image URL" />
-          <input type="number" id="slotBet" placeholder="Bet Amount" />
-          <label style="margin:0;display:flex;align-items:center;justify-content:center;">
-            <input type="checkbox" id="slotSuperBonus" style="margin-right:6px;" /> Super Bonus
-          </label>
-          <button onclick="addSlot()">Add Slot</button>
+          <div class="add-slot-actions">
+          <button type="button" id="toggleImageUrlBtn" class="pill-btn">ADD URL</button>
+          <button class="pill-btn" onclick="addSlot()">Add Slot</button>
+        </div>
+        <input type="url" id="slotImage" placeholder="Image URL" style="display:none;" />
+        <label style="margin:0;display:flex;align-items:center;justify-content:center;">
+          <input type="checkbox" id="slotSuperBonus" style="margin-right:6px;" /> Super Bonus
+        </label>
         </div>
         <!-- Sidebar Color Settings Card -->
         <div class="sidebar-color-settings sidebar-section" style="padding:0;">
@@ -1009,7 +1129,16 @@
         loadSidebarColors();
       });
     });
-
+    // Make sure this JS is present after your DOM loads
+document.getElementById('toggleImageUrlBtn').addEventListener('click', function() {
+  const input = document.getElementById('slotImage');
+  if (input.style.display === 'none' || input.style.display === '') {
+    input.style.display = 'inline-block';
+    input.focus();
+  } else {
+    input.style.display = 'none';
+  }
+});
     // --- Main App Logic ---
     const slots = [];
     let displayIndex = 0;
@@ -1504,48 +1633,13 @@ const slotDatabase = [
   { name: "Tasty Treats", image: "https://mediumrare.imgix.net/a478052cb3a60aacfdcc4dacea3d0b4ea0a095c28e55ccabafd0b64f3c4fb9bf?w=180&h=236&fit=min&auto=format", provider: "Hacksaw" },
   { name: "Let it Snow", image: "https://mediumrare.imgix.net/22d5ab5f65de364fd4573409289caffbf7cd4c1696ffdc8cbb6e0c0f5ca2aaff?w=180&h=236&fit=min&auto=format", provider: "Hacksaw" },
   { name: "Harvest Wilds", image: "https://mediumrare.imgix.net/cc2173ba768f9fa72a884bb8d475c47ab13d44b25a275972255ee4fd85331a99?w=180&h=236&fit=min&auto=format", provider: "Hacksaw" },
-  { name: "Sugar Rush", image: "", provider: "Hacksaw" },
-  { name: "Sugar Rush", image: "", provider: "Hacksaw" },
-  { name: "Sugar Rush", image: "", provider: "Hacksaw" },
-  { name: "Sugar Rush", image: "", provider: "Hacksaw" },
-  { name: "Sugar Rush", image: "", provider: "Hacksaw" },
-  { name: "Sugar Rush", image: "", provider: "Hacksaw" },
-  { name: "Sugar Rush", image: "", provider: "Hacksaw" },
-  { name: "Sugar Rush", image: "", provider: "Hacksaw" },
-  { name: "Sugar Rush", image: "", provider: "Hacksaw" },
-  { name: "Sugar Rush", image: "", provider: "Hacksaw" },
-  { name: "Sugar Rush", image: "", provider: "Hacksaw" },
-  { name: "Sugar Rush", image: "", provider: "Hacksaw" },
-  { name: "Sugar Rush", image: "", provider: "Hacksaw" },
-  { name: "Sugar Rush", image: "", provider: "Hacksaw" },
-  { name: "Sugar Rush", image: "", provider: "Hacksaw" },
-  { name: "Sugar Rush", image: "", provider: "Hacksaw" },
-  { name: "Sugar Rush", image: "", provider: "Hacksaw" },
-  { name: "Sugar Rush", image: "", provider: "Hacksaw" },
-  { name: "Sugar Rush", image: "", provider: "Hacksaw" },
-  { name: "Sugar Rush", image: "", provider: "Hacksaw" },
-  { name: "Sugar Rush", image: "", provider: "Hacksaw" },
-  { name: "Sugar Rush", image: "", provider: "Hacksaw" },
-  { name: "Sugar Rush", image: "", provider: "Hacksaw" },
-  { name: "Sugar Rush", image: "", provider: "Hacksaw" },
-  { name: "Sugar Rush", image: "", provider: "Hacksaw" },
-  { name: "Sugar Rush", image: "", provider: "Hacksaw" },
-  { name: "Sugar Rush", image: "", provider: "Hacksaw" },
-  { name: "Sugar Rush", image: "", provider: "Hacksaw" },
-  { name: "Sugar Rush", image: "", provider: "Hacksaw" },
-  { name: "Sugar Rush", image: "", provider: "Hacksaw" },
-  { name: "Sugar Rush", image: "", provider: "Hacksaw" },
-  { name: "Sugar Rush", image: "", provider: "Hacksaw" },
-  { name: "Sugar Rush", image: "", provider: "Hacksaw" },
-  { name: "Sugar Rush", image: "", provider: "Hacksaw" },
-  { name: "Sugar Rush", image: "", provider: "Hacksaw" },
-  { name: "Sugar Rush", image: "", provider: "Hacksaw" },
-  { name: "Sugar Rush", image: "", provider: "Hacksaw" },
-  { name: "Sugar Rush", image: "", provider: "Hacksaw" },
-  { name: "Sugar Rush", image: "", provider: "Hacksaw" },
-  { name: "Sugar Rush", image: "", provider: "Hacksaw" },
-  { name: "Sugar Rush", image: "", provider: "Hacksaw" },
-  { name: "Sugar Rush", image: "", provider: "Hacksaw" },
+  { name: "Ethenal Nile", image: "https://mediumrare.imgix.net/8621688f67c74a42471c052dcc3443c754617d159258554125da3dc1e1da470f?w=180&h=236&fit=min&auto=format", provider: "Hacksaw" },
+  { name: "8-Bit Quest", image: "https://mediumrare.imgix.net/c24f8c668823b8fc9ecaace4ec2d458d28106c6247b4138a561d38db6b705455?w=180&h=236&fit=min&auto=format", provider: "Hacksaw" },
+  { name: "Monkey Frenzy", image: "https://mediumrare.imgix.net/0b60d8d6e4080095e0cb2e7efd68436ec285135fc00ae0bced559815ffcac7bd?w=180&h=236&fit=min&auto=format", provider: "Hacksaw" },
+  { name: "Sticky Candyland", image: "https://mediumrare.imgix.net/01d620d4903a3f14b397ef202e934cd4e9902ad01794e7bc20903fe156a2a5b4?w=180&h=236&fit=min&auto=format", provider: "Hacksaw" },
+  { name: "The Library", image: "https://mediumrare.imgix.net/66dd42db2459d2b0a8fc356ed18ad0b3489b562ba80446496c4a8fa908c134cd?w=180&h=236&fit=min&auto=format", provider: "Hacksaw" },
+  { name: "Shadow Treasure", image: "https://mediumrare.imgix.net/04531340b93a65869cd94e56b921bb3438909d61336954c94f7824f8266b1f03?w=180&h=236&fit=min&auto=format", provider: "Hacksaw" },
+  { name: "Lucky Multifruit", image: "https://mediumrare.imgix.net/07dfe0313bf45e0d937f277cbf11f9b2181520f2c0c2a01e4b7d539365e6bd18?w=180&h=236&fit=min&auto=format", provider: "Hacksaw" },
   { name: "Sugar Rush", image: "", provider: "Hacksaw" },
   { name: "Sugar Rush", image: "", provider: "Hacksaw" },
   { name: "Sugar Rush", image: "", provider: "Hacksaw" },
@@ -1606,7 +1700,7 @@ slotNameInput.addEventListener('input', function() {
   const list = document.createElement('div');
   list.style.position = 'absolute';
   list.style.background = '#232e4d';
-  list.style.border = '1px solid #3ec6ff';
+  list.style.border = '1.5px solid #3ec6ff';
   list.style.zIndex = '1000';
   list.style.width = slotNameInput.offsetWidth + 'px';
   list.style.maxHeight = '180px';
@@ -1615,11 +1709,39 @@ slotNameInput.addEventListener('input', function() {
 
   matches.forEach(slot => {
     const item = document.createElement('div');
-    item.textContent = slot.name;
-    item.style.padding = '6px 10px';
+    item.style.position = 'relative';
+    item.style.padding = '6px 10px 6px 48px'; // leave space for image
     item.style.cursor = 'pointer';
     item.style.color = '#fff';
     item.style.fontSize = '1em';
+    item.style.display = 'flex';
+    item.style.alignItems = 'center';
+    item.style.minHeight = '38px';
+
+    // Thumbnail image
+    const img = document.createElement('img');
+    img.src = slot.image || 'https://i.imgur.com/8E3ucNx.png';
+    img.alt = slot.name;
+    img.style.position = 'absolute';
+    img.style.left = '6px';
+    img.style.top = '50%';
+    img.style.transform = 'translateY(-50%)';
+    img.style.width = '76px';   // doubled from 32px
+    img.style.height = '64px';  // doubled from 24px
+    img.style.objectFit = 'cover';
+    img.style.borderRadius = '7px';
+    img.style.border = '1.5px solid #3ec6ff';
+    img.style.background = '#181f36';
+    img.style.boxShadow = '0 1px 4px #3ec6ff33';
+
+    item.appendChild(img);
+
+    // Slot name text
+    const text = document.createElement('span');
+    text.textContent = slot.name;
+    text.style.marginLeft = '38px';
+    item.appendChild(text);
+
     item.addEventListener('mousedown', function(e) {
       e.preventDefault();
       slotNameInput.value = slot.name;
