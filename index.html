@@ -705,6 +705,26 @@
       flex-direction: column;
       gap: 8px;
       align-items: flex-start;
+      position: relative;
+      padding-top: 38px !important; 
+    }
+    #sidebarSettingsToggle.sidebar-settings-pill {
+      position: absolute;
+      top: 1px;
+      left: 45%;
+      transform: translateX(-50%);
+      margin: 0;
+      width: 85%;
+      max-width: 280px;
+      z-index: 2;
+      box-sizing: border-box;
+    }
+    .sidebar-color-settings {
+      position: relative;
+      padding-top: 60px !important; /* Increase to fit the button and spacing */
+    }
+    #sidebarSettingsContent {
+      margin-top: 18px;
     }
     .sidebar-color-settings label {
       font-size: 0.98em;
@@ -779,6 +799,27 @@
   font-size: 0.78em !important;
   top: -15px !important;
 }
+.sidebar-settings-pill {
+  display: inline-block;
+  border: none;
+  background: linear-gradient(90deg, #3ec6ff 0%, #5ce1e6 100%);
+  color: #181f36;
+  font-weight: bold;
+  font-size: 0.98em;
+  padding: 6px 18px;
+  border-radius: 999px;
+  box-shadow: 0 2px 8px #3ec6ff33;
+  cursor: pointer;
+  margin-bottom: 10px;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  min-width: 0;
+  min-height: 0;
+  line-height: 1.2;
+}
+.sidebar-settings-pill.active {
+  background: linear-gradient(90deg, #5ce1e6 0%, #3ec6ff 100%);
+  color: #fff;
+}
   </style>
 </head>
 <body>
@@ -797,7 +838,8 @@
       <div class="slot-management-panel">
         <h3>Add Slot</h3>
         <div class="add-slot-grid">
-          <input type="text" id="slotName" placeholder="Slot Name" />
+          <input type="text" id="slotName" placeholder="Slot Name" autocomplete="off" />
+          <div id="slotSuggestions" style="position:relative;"></div>
           <input type="url" id="slotImage" placeholder="Image URL" />
           <input type="number" id="slotBet" placeholder="Bet Amount" />
           <label style="margin:0;display:flex;align-items:center;justify-content:center;">
@@ -806,20 +848,30 @@
           <button onclick="addSlot()">Add Slot</button>
         </div>
         <!-- Sidebar Color Settings Card -->
-        <div class="sidebar-color-settings sidebar-section">
-          <div class="sidebar-label" style="margin-bottom:10px;">🎨 Sidebar Color Settings</div>
-          <div style="display:flex;flex-wrap:wrap;gap:10px;">
-            <label>BG <input type="color" id="sidebarBgColor" /></label>
-            <label>Border <input type="color" id="sidebarBorderColor" /></label>
-            <label>Card <input type="color" id="sidebarCardColor" /></label>
-            <label>Label <input type="color" id="sidebarLabelColor" /></label>
-            <label>Pill <input type="color" id="sidebarPillColor" /></label>
+        <div class="sidebar-color-settings sidebar-section" style="padding:0;">
+          <button id="sidebarSettingsToggle" class="sidebar-settings-pill" style="margin:14px 0 0 14px;">🎨 Sidebar Settings</button>
+          <div id="sidebarSettingsContent" style="display:none;padding:14px 16px;">
+            <div style="display:flex;flex-wrap:wrap;gap:10px;">
+              <label>BG <input type="color" id="sidebarBgColor" /></label>
+              <label>Border <input type="color" id="sidebarBorderColor" /></label>
+              <label>Card <input type="color" id="sidebarCardColor" /></label>
+              <label>Label <input type="color" id="sidebarLabelColor" /></label>
+              <label>Pill <input type="color" id="sidebarPillColor" /></label>
+            </div>
+            <label style="width:100%;">
+              Banner Image URL
+              <input type="url" id="sidebarBannerUrl" placeholder="https://..." style="width:100%;margin-top:4px;" />
+            </label>
+            <label style="width:100%;">
+              Blue Bar Title
+              <input type="text" id="sidebarBlueBarTitle" placeholder="Enter blue bar title..." style="width:100%;margin-top:4px;" />
+            </label>
+            <label style="width:100%;">
+              Blue Bar Title Text Color
+              <input type="color" id="sidebarBlueBarTitleColor" style="width:100%;margin-top:4px;" />
+            </label>
+            <button id="resetSidebarColors">Reset Colors</button>
           </div>
-          <label style="width:100%;">
-            Banner Image URL
-            <input type="url" id="sidebarBannerUrl" placeholder="https://..." style="width:100%;margin-top:4px;" />
-          </label>
-          <button id="resetSidebarColors">Reset Colors</button>
         </div>
         <div class="slideshow">
           <img id="slotPreview" src="" alt="Slot Preview" />
@@ -843,6 +895,7 @@
   </div>
  <div id="sidebar" class="sidebar">
   <div class="sidebar-section header" style="display: flex; align-items: center; gap: 12px;">
+    <span id="sidebarBlueBarTitleDisplay" style="flex:1;text-align:center;font-size:1.1em;"></span>
     <div id="huntTitleEditable" class="sidebar-title" contenteditable="true" spellcheck="false" style="outline:none;">
       Bonus Hunt/Opening <span id="huntNumber">#1</span>
     </div>
@@ -898,6 +951,7 @@
   </div>
 </div>
 </div>
+  <div id="slotSuggestions" style="position:relative;"></div>
   <script>
     // Sidebar color customization
     const defaultSidebarColors = {
@@ -962,21 +1016,23 @@
     let carouselIndex = 0;
     let carouselInterval = null;
 
-    function addSlot() {
-      const name = document.getElementById('slotName').value;
-      const image = document.getElementById('slotImage').value;
-      const bet = parseFloat(document.getElementById('slotBet').value) || 0;
-      const superBonus = document.getElementById('slotSuperBonus').checked;
-      if (!name || !image || !bet) return;
-      const slot = { name, image, payout: 0, bet, superBonus };
-      slots.push(slot);
-      updateTable();
-      updateSidebar();
-      document.getElementById('slotName').value = '';
-      document.getElementById('slotImage').value = '';
-      document.getElementById('slotBet').value = '';
-      document.getElementById('slotSuperBonus').checked = false;
-    }
+   function addSlot() {
+  const name = document.getElementById('slotName').value;
+  let image = document.getElementById('slotImage').value; // <-- use let here!
+  const bet = parseFloat(document.getElementById('slotBet').value) || 0;
+  const superBonus = document.getElementById('slotSuperBonus').checked;
+  const defaultLogo = "https://i.imgur.com/8E3ucNx.png";
+  if (!name || !bet) return;
+  if (!image) image = defaultLogo;
+  const slot = { name, image, payout: 0, bet, superBonus };
+  slots.push(slot);
+  updateTable();
+  updateSidebar();
+  document.getElementById('slotName').value = '';
+  document.getElementById('slotImage').value = '';
+  document.getElementById('slotBet').value = '';
+  document.getElementById('slotSuperBonus').checked = false;
+}
 
     function removeSlot(index) {
       slots.splice(index, 1);
@@ -1154,21 +1210,31 @@
     function updateSidebar() {
       const starting = parseFloat(document.getElementById('startingMoney').value) || 0;
       const finishing = parseFloat(document.getElementById('finishingMoney').value) || 0;
-      const totalBonuses = slots.length;
-      const totalBet = slots.reduce((sum, s) => sum + (s.bet * (s.superBonus ? 200 : 100)), 0);
-      const totalPayout = slots.reduce((sum, s) => sum + (s.payout || 0), 0);
-      const averageBet = totalBonuses > 0 ? (totalBet / totalBonuses) : 0;
-      const spent = starting - finishing;
-      const profitLoss = totalPayout - spent;
-      const breakEvenX = averageBet > 0 ? ((spent - totalPayout) / averageBet).toFixed(2) : 'N/A';
+      const target = starting; // Target is starting money
 
-      document.getElementById('sidebarTarget').textContent = starting ? starting.toFixed(2) + "€" : "0€";
-      document.getElementById('sidebarAvg').textContent = averageBet ? (totalPayout / totalBet * 100).toFixed(0) + "x" : "0x";
-      document.getElementById('sidebarBE').textContent = breakEvenX + "x";
+      const totalBonuses = slots.length;
+      const openedBonuses = slots.filter(s => s.payout > 0).length;
+      const totalBet = slots.reduce((sum, s) => sum + (s.bet || 0), 0);
+      const totalWin = slots.reduce((sum, s) => sum + (s.payout || 0), 0);
+
+      const breakEvenX = totalBet > 0 ? (target / totalBet) : 0;
+      const avgX = totalBet > 0 ? (totalWin / totalBet) : 0;
+
+      const bestWin = slots.reduce((max, s) => Math.max(max, s.payout || 0), 0);
+      const bestMulti = slots.reduce((max, s) => {
+        if (s.bet > 0) return Math.max(max, (s.payout || 0) / s.bet);
+        return max;
+      }, 0);
+
+      const progressPercent = totalBonuses > 0 ? (openedBonuses / totalBonuses) * 100 : 0;
+      const profitLoss = totalWin - target;
+
+      document.getElementById('sidebarTarget').textContent = target ? target.toFixed(2) + "€" : "0€";
+      document.getElementById('sidebarAvg').textContent = avgX.toFixed(2) + "x";
+      document.getElementById('sidebarBE').textContent = breakEvenX.toFixed(2) + "x";
       document.getElementById('sidebarProfit').textContent = (profitLoss >= 0 ? "+" : "") + profitLoss.toFixed(2) + "€";
-      const progress = totalBonuses > 0 ? (slots.filter(s => s.payout > 0).length / totalBonuses) * 100 : 0;
-      document.getElementById('sidebarProgressBar').style.width = progress + "%";
-      document.getElementById('sidebarProgressText').textContent = `${slots.filter(s => s.payout > 0).length}/${totalBonuses}`;
+      document.getElementById('sidebarProgressBar').style.width = progressPercent + "%";
+      document.getElementById('sidebarProgressText').textContent = `${openedBonuses}/${totalBonuses}`;
 
       // Best & Worst
       let bestSlot = null, worstSlot = null;
@@ -1293,6 +1359,154 @@ document.addEventListener('DOMContentLoaded', () => {
   loadSidebarBanner();
   document.getElementById('sidebarBannerUrl').addEventListener('input', saveSidebarBanner);
 });
+
+    // Example slot database
+const slotDatabase = [
+  { name: "Gates of Hades", image: "https://mediumrare.imgix.net/60206bb76f8d15dd2975ea5d5c908194c66a1183683e6988c83027ada9befbef?w=180&h=236&fit=min&auto=format", provider: "Pragmatic Play" },
+  { name: "Gates of Olympus Super Scatter", image: "https://mediumrare.imgix.net/7d4fc189e6c48fd611846d6af0d1bd553fa0b9a2481fdeac29e05d864c36b82d?w=180&h=236&fit=min&auto=format", provider: "Pragmatic Play" },
+  { name: "Gates of Olympus Xmas 1000", image: "https://mediumrare.imgix.net/206a059864461c5bb63e1af83d5a105a2c36205cb8e01b37418f57d10d295252?w=180&h=236&fit=min&auto=format", provider: "Pragmatic Play" },
+  { name: "Gates of Olympus 1000™", image: "https://mediumrare.imgix.net/8421465d345dc9f775ee55001e0337b80d86dd77f2de36e4cb3650a364210847?w=180&h=236&fit=min&auto=format", provider: "Pragmatic Play" },
+  { name: "Gates of Valhalla™", image: "https://www.pragmaticplay.com/wp-content/uploads/2022/01/Gate_Of_Valhalla_EN_339x180.png", provider: "Pragmatic Play" },
+  { name: "Gates of Olympus™", image: "https://mediumrare.imgix.net/eb7ea358dba2cf7967e42f9c8327eb787dd9530d74b8cbdbfcecff9ccc962228?w=180&h=236&fit=min&auto=format", provider: "Pragmatic Play" },
+  { name: "Gates of Aztec", image: "https://mediumrare.imgix.net/0cbe57e4da0fb8361c4b1d40efe87044b47ddd24a577612a488eb3c79e0be455?w=180&h=236&fit=min&auto=format", provider: "Pragmatic Play" },
+  { name: "Gates of Gatotkaca", image: "https://mediumrare.imgix.net/0af25fe25fdd694509af52a1fb2bb725786d01bceda536f99ef549f0f1ea5967?w=180&h=236&fit=min&auto=format", provider: "Pragmatic Play" },
+  { name: "Gates of Olympus Dice", image: "https://mediumrare.imgix.net/9099ceb273c85a32737b1682ffefccb899a428ae16daadccf9b7cde80387ad52?w=180&h=236&fit=min&auto=format", provider: "Pragmatic Play" },
+  { name: "Sweet Bonanza", image: "https://mediumrare.imgix.net/f95b3adf9d28d57496dd8da909c0cb97515104194924c5abb4cc9ad792f35dfe?w=180&h=236&fit=min&auto=format", provider: "Pragmatic Play" },
+  { name: "Sweet Bonanza 1000", image: "https://mediumrare.imgix.net/445d5df4246639bd20337a70ee328301f1d949f4d3c2bc60c9bd7a31fd3636de?w=180&h=236&fit=min&auto=format", provider: "Pragmatic Play" },
+  { name: "Sweet Kingdom", image: "https://mediumrare.imgix.net/be8b9d3bb6565afd24db1b5418a3d235297dbaca52fc64c6affdbe98e5ae02e2?w=180&h=236&fit=min&auto=format", provider: "Pragmatic Play" },
+  { name: "Sweet Bonanza Dice", image: "https://mediumrare.imgix.net/d99d991fe476413c9ab9143c19e6add2761d182bfe3e05aad12fbd84da116cb4?w=180&h=236&fit=min&auto=format", provider: "Pragmatic Play" },
+  { name: "Sweet Bonanza Xmas", image: "https://mediumrare.imgix.net/07a13b91c0901e1d32ac71918f280ae48acbb684a651d08deef253812fca29ce?w=180&h=236&fit=min&auto=format", provider: "Pragmatic Play" },
+  { name: "Sweet Powernudge", image: "https://mediumrare.imgix.net/6f48e15d310da3000f6554aad1298b424acd06f8544c64ed68c484fbeafc6980?w=180&h=236&fit=min&auto=format", provider: "Pragmatic Play" },
+  { name: "Sweet Alchemy 100", image: "https://mediumrare.imgix.net/7baf7257bf20524a6e25760fe034bbd129797f8ff2905ab22c5adc0c740319c6?w=180&h=236&fit=min&auto=format", provider: "Pragmatic Play" },
+  { name: "Sweet Rush Megaways", image: "https://mediumrare.imgix.net/9b4094155be45b4ad24cde1c86ce6aae384309f308da2190b61d0baa4f605446?w=180&h=236&fit=min&auto=format", provider: "Pragmatic Play" },
+  { name: "Sweet Gummmy", image: "https://mediumrare.imgix.net/ba614293c3ec7b1d3037a7211c7063e27ef4ef53ea75e45b4be03ea9bc764d9e?w=180&h=236&fit=min&auto=format", provider: "Pragmatic Play" },
+  { name: "Sweet Alchemy", image: "https://mediumrare.imgix.net/1f358762243f6f9201258778752a0a0c64d820bef568dad2e6737f6dd4109f65?w=180&h=236&fit=min&auto=format", provider: "Pragmatic Play" },
+  { name: "Sweet Alchemy 2", image: "https://mediumrare.imgix.net/cc54de090e5d4949aa9cd9286e554a0ea678f87b19b314daec29988ab9501ef1?w=180&h=236&fit=min&auto=format", provider: "Pragmatic Play" },
+  { name: "Sugar Rush", image: "https://mediumrare.imgix.net/d460898300e27164e6a059a28fca4b38582c07701a7298566ac08661c8b7dc58?w=180&h=236&fit=min&auto=format", provider: "Pragmatic Play" },
+  { name: "Sugar Rush 1000", image: "https://mediumrare.imgix.net/14d5410c6cf4c303d291262a10e949dc14b0ac2eca2a7a730b0401919c01358e?w=180&h=236&fit=min&auto=format", provider: "Pragmatic Play" },
+  { name: "Sugar Rush Xmas", image: "https://mediumrare.imgix.net/0e621a565ef413c50798294d014cb1e96550effe8ab5befcd1d6774d9dc20148?w=180&h=236&fit=min&auto=format", provider: "Pragmatic Play" },
+  { name: "Sugar Rush Dice", image: "https://mediumrare.imgix.net/1dfa0e762f74219c3cdfe56428fed3130191f4ef289d1e7f5b116023a6d1e450?w=180&h=236&fit=min&auto=format", provider: "Pragmatic Play" },
+  { name: "Sugar Supreme Powernudge", image: "https://mediumrare.imgix.net/fc3a732b64a73b0011a0e55def22bb91de90bddf3637f5aad383fd30e47b1fa8?w=180&h=236&fit=min&auto=format", provider: "Pragmatic Play" },
+  { name: "Sugar Twist", image: "https://mediumrare.imgix.net/3fbda3cb3022ebe5175f345c8bd6ff4b3cc305f28b2b10c21b5762f788908623?w=180&h=236&fit=min&auto=format", provider: "Pragmatic Play" },
+  { name: "Sugar Rush", image: "https://example.com/sugar.jpg", provider: "Pragmatic Play" },
+  { name: "Sugar Rush", image: "https://example.com/sugar.jpg", provider: "Pragmatic Play" },
+  { name: "Sugar Rush", image: "https://example.com/sugar.jpg", provider: "Pragmatic Play" },
+  { name: "Sugar Rush", image: "https://example.com/sugar.jpg", provider: "Pragmatic Play" },
+  { name: "Sugar Rush", image: "https://example.com/sugar.jpg", provider: "Pragmatic Play" },
+  { name: "Sugar Rush", image: "https://example.com/sugar.jpg", provider: "Pragmatic Play" },
+  { name: "Sugar Rush", image: "https://example.com/sugar.jpg", provider: "Pragmatic Play" },
+  { name: "Sugar Rush", image: "https://example.com/sugar.jpg", provider: "Pragmatic Play" },
+  { name: "Sugar Rush", image: "https://example.com/sugar.jpg", provider: "Pragmatic Play" },
+  { name: "Sugar Rush", image: "https://example.com/sugar.jpg", provider: "Pragmatic Play" },
+  { name: "Sugar Rush", image: "https://example.com/sugar.jpg", provider: "Pragmatic Play" },
+  { name: "Sugar Rush", image: "https://example.com/sugar.jpg", provider: "Pragmatic Play" },
+  { name: "Sugar Rush", image: "https://example.com/sugar.jpg", provider: "Pragmatic Play" },
+  { name: "Sugar Rush", image: "https://example.com/sugar.jpg", provider: "Pragmatic Play" },
+  { name: "Sugar Rush", image: "https://example.com/sugar.jpg", provider: "Pragmatic Play" },
+  { name: "Sugar Rush", image: "https://example.com/sugar.jpg", provider: "Pragmatic Play" },
+  { name: "Sugar Rush", image: "https://example.com/sugar.jpg", provider: "Pragmatic Play" },
+  { name: "Sugar Rush", image: "https://example.com/sugar.jpg", provider: "Pragmatic Play" },
+  { name: "Sugar Rush", image: "https://example.com/sugar.jpg", provider: "Pragmatic Play" },
+  { name: "Sugar Rush", image: "https://example.com/sugar.jpg", provider: "Pragmatic Play" },
+  { name: "Sugar Rush", image: "https://example.com/sugar.jpg", provider: "Pragmatic Play" },
+  { name: "Sugar Rush", image: "https://example.com/sugar.jpg", provider: "Pragmatic Play" },
+  { name: "Wanted Dead or a Wild", image: "https://example.com/wanted.jpg", provider: "Pragmatic Play" },
+  // ...add more slots here
+];
+
+const slotNameInput = document.getElementById('slotName');
+const slotImageInput = document.getElementById('slotImage');
+const slotSuggestions = document.getElementById('slotSuggestions');
+
+slotNameInput.addEventListener('input', function() {
+  const value = slotNameInput.value.trim().toLowerCase();
+  slotSuggestions.innerHTML = '';
+  if (value.length < 3) return;
+
+  const matches = slotDatabase.filter(slot =>
+    slot.name.toLowerCase().includes(value)
+  );
+
+  if (matches.length === 0) return;
+
+  const list = document.createElement('div');
+  list.style.position = 'absolute';
+  list.style.background = '#232e4d';
+  list.style.border = '1px solid #3ec6ff';
+  list.style.zIndex = '1000';
+  list.style.width = slotNameInput.offsetWidth + 'px';
+  list.style.maxHeight = '180px';
+  list.style.overflowY = 'auto';
+  list.style.borderRadius = '8px';
+
+  matches.forEach(slot => {
+    const item = document.createElement('div');
+    item.textContent = slot.name;
+    item.style.padding = '6px 10px';
+    item.style.cursor = 'pointer';
+    item.style.color = '#fff';
+    item.style.fontSize = '1em';
+    item.addEventListener('mousedown', function(e) {
+      e.preventDefault();
+      slotNameInput.value = slot.name;
+      slotImageInput.value = slot.image;
+      slotSuggestions.innerHTML = '';
+      document.getElementById('slotPreview').src = slot.image;
+    });
+    list.appendChild(item);
+  });
+
+  slotSuggestions.appendChild(list);
+});
+
+// Hide suggestions when clicking outside
+document.addEventListener('click', function(e) {
+  if (!slotSuggestions.contains(e.target) && e.target !== slotNameInput) {
+    slotSuggestions.innerHTML = '';
+  }
+});
+
+const BLUE_BAR_TITLE_KEY = 'sidebarBlueBarTitle';
+const BLUE_BAR_TITLE_COLOR_KEY = 'sidebarBlueBarTitleColor';
+
+function loadSidebarBlueBarTitle() {
+  const saved = localStorage.getItem(BLUE_BAR_TITLE_KEY) || '';
+  document.getElementById('sidebarBlueBarTitle').value = saved;
+  document.getElementById('sidebarBlueBarTitleDisplay').textContent = saved;
+
+  // Load color
+  const color = localStorage.getItem(BLUE_BAR_TITLE_COLOR_KEY) || '#ffffff';
+  document.getElementById('sidebarBlueBarTitleColor').value = color;
+  document.getElementById('sidebarBlueBarTitleDisplay').style.color = color;
+}
+
+function saveSidebarBlueBarTitle() {
+  const value = document.getElementById('sidebarBlueBarTitle').value;
+  localStorage.setItem(BLUE_BAR_TITLE_KEY, value);
+  document.getElementById('sidebarBlueBarTitleDisplay').textContent = value;
+}
+
+function saveSidebarBlueBarTitleColor() {
+  const color = document.getElementById('sidebarBlueBarTitleColor').value;
+  localStorage.setItem(BLUE_BAR_TITLE_COLOR_KEY, color);
+  document.getElementById('sidebarBlueBarTitleDisplay').style.color = color;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadSidebarBlueBarTitle();
+  document.getElementById('sidebarBlueBarTitle').addEventListener('input', saveSidebarBlueBarTitle);
+  document.getElementById('sidebarBlueBarTitleColor').addEventListener('input', saveSidebarBlueBarTitleColor);
+});
+
+    // Sidebar Settings Toggle
+    const toggleBtn = document.getElementById('sidebarSettingsToggle');
+    const content = document.getElementById('sidebarSettingsContent');
+    let expanded = false;
+    toggleBtn.addEventListener('click', () => {
+      expanded = !expanded;
+      content.style.display = expanded ? 'block' : 'none';
+      toggleBtn.classList.toggle('active', expanded);
+    });
   </script>
 </body>
 <footer style="width:100%;text-align:center;padding:18px 0 12px 0;color:#a259ff;font-size:1em;letter-spacing:1px;opacity:0.85;">
