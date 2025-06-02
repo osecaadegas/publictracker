@@ -1121,12 +1121,12 @@
       const statsDiv = document.getElementById('stats');
       statsDiv.innerHTML = `
         <p>Total Bonuses: ${totalBonuses}</p>
-        <p><strong>Average Bet Size: €${averageBet.toFixed(2)}</strong></p>
+        <p><strong>Average Bonus Price: €${averageBet.toFixed(2)}</strong></p>
         <p>Total Return: €${totalPayout.toFixed(2)}</p>
         <p>
           <strong>Break Even:</strong>
           <br>Amount Needed: <span style="color:#0ff">€${toBreakEven.toFixed(2)}</span>
-          <br>X Needed: <span style="color:#0ff">${xToBreakEven}x average bet</span>
+          <br>X Needed: <span style="color:#0ff">${xToBreakEven}x average bonus</span>
         </p>
         <p class="${profitLoss >= 0 ? 'profit' : 'loss'}">
           ${profitLoss >= 0 ? 'Profit' : 'Loss'}: €${profitLoss.toFixed(2)} (${spent > 0 ? ((profitLoss / spent) * 100).toFixed(2) : 'N/A'}%)
